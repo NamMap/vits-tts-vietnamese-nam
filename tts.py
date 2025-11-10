@@ -251,11 +251,11 @@ if __name__ == "__main__":
     elif len(sys.argv) > 1:
         text_input = " ".join(sys.argv[1:])
     else:
-        text_input = "Xin chào"  # default
+        text_input = "Xin chào, bạn Nam mập"  # default
 
     # Generate a filename hash for output
     import hashlib
-    hash_of_text = hashlib.md5(text_input.encode("utf-8")).hexdigest()
+    hash_of_text = "output_test"#hashlib.md5(text_input.encode("utf-8")).hexdigest()
     output_file = f"/app/src/audio/output_{hash_of_text}.wav"
 
     print(f"Synthesizing text: {text_input}", flush=True)
