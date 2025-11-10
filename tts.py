@@ -30,6 +30,12 @@ EOS = "$"  # end of sentence
 def text_to_speech(text:str,speed:str,model_name:str,hash_of_text:str):
     """Main entry point"""
 
+
+    output_dir = os.getcwd() + "/audio/"
+    os.makedirs(output_dir, exist_ok=True)
+    print(f"[DEBUG] Output directory: {output_dir}", flush=True)
+
+
     speed = speed.strip()
     length_scale = float(SPEED_VALUES[speed])
 
@@ -49,6 +55,12 @@ def text_to_speech(text:str,speed:str,model_name:str,hash_of_text:str):
         phoneme_ids_flatten += i + [0,0,0]
     text = np.expand_dims(np.array(phoneme_ids_flatten, dtype=np.int64), 0)
     text_lengths = np.array([text.shape[1]], dtype=np.int64)
+
+
+    print(f"[DEBUG] Model input shape: {text.shape}", flush=True)
+    print(f"[DEBUG] Using model: {model_name}", flush=True)
+
+
     scales = np.array(
         [NOISE_SCALE, length_scale, NOISE_SCALE_W],
         dtype=np.float32,
@@ -78,6 +90,11 @@ def text_to_speech(text:str,speed:str,model_name:str,hash_of_text:str):
     #     infer_sec / audio_duration_sec if audio_duration_sec > 0 else 0.0
     # )
     output_path = output_dir + f"/{hash_of_text}.wav"
+
+
+    print(f"[DEBUG] Writing WAV to: {output_dir}/{hash_of_text}.wav", flush=True)
+
+
     write_wav(str(output_path), SAMPLE_RATE, audio)
     return output_path
 
@@ -220,3 +237,55 @@ def transform(input_data):
 
     return magnitude, phase
 
+
+
+if __name__ == "__main__":
+    import sys
+    print("Starting TTS script...", flush=True)
+
+    # Determine input: text file or command-line string
+    if len(sys.argv) > 1 and sys.argv[1].endswith(".txt"):
+        input_file = sys.argv[1]
+        with open(input_file, "r", encoding="utf-8") as f:
+            text_input = f.read().strip()
+    elif len(sys.argv) > 1:
+        text_input = " ".join(sys.argv[1:])
+    else:
+        text_input = "Xin chào"  # default
+
+    # Generate a filename hash for output
+    import hashlib
+    hash_of_text = hashlib.md5(text_input.encode("utf-8")).hexdigest()
+    output_file = f"/app/src/audio/output_{hash_of_text}.wav"
+
+    print(f"Synthesizing text: {text_input}", flush=True)
+    print(f"Output will be: {output_file}", flush=True)
+
+    # Call your existing function
+    text_to_speech(
+        text_input,
+        speed="very_slow",
+        model_name="pretrained_vi.onnx",
+        hash_of_text=hash_of_text
+        )
+
+    print(f"[INFO] WAV file generated at: {output_file}", flush=True)
+
+"""
+if __name__ == "__main__":
+    import sys
+    print("Starting TTS script...", flush=True)
+
+    try:
+        text_input = "Xin chào bạn Khang Bùi của công ty ma vì cô"
+        output_file_name = "output"
+        output_path = text_to_speech(
+            text=text_input,
+            speed="slow",
+            model_name="pretrained_vi.onnx",
+            hash_of_text=output_file_name
+        )
+        print(f"[INFO] WAV file generated at: {output_path}", flush=True)
+    except Exception as e:
+        print("Error occurred:", e, flush=True)
+"""
