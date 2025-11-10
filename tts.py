@@ -237,8 +237,40 @@ def transform(input_data):
 
     return magnitude, phase
 
+if __name__ == "__main__":
+    import sys
+    print("Starting TTS script...", flush=True)
 
+    # Read input text
+    if len(sys.argv) > 1 and sys.argv[1].endswith(".txt"):
+        input_file = sys.argv[1]
+        with open(input_file, "r", encoding="utf-8") as f:
+            text_input = f.read().strip()
+    elif len(sys.argv) > 1:
+        text_input = " ".join(sys.argv[1:])
+    else:
+        text_input = "Xin chào, bạn Nam mập"  # default
 
+    words = text_input.split()  # split text into words
+    print(f"[INFO] Total words: {len(words)}", flush=True)
+
+    output_dir = os.getcwd() + "/audio_words/"
+    os.makedirs(output_dir, exist_ok=True)
+
+    for idx, word in enumerate(words, start=1):
+        output_filename = f"tts_{idx:04d}.wav"  # zero-padded
+        output_path = os.path.join(output_dir, output_filename)
+
+        print(f"[INFO] Synthesizing word {idx}/{len(words)}: '{word}'", flush=True)
+        text_to_speech(
+            text=word,
+            speed="very_slow",
+            model_name="pretrained_vi.onnx",
+            hash_of_text=f"tts_{idx:04d}"  # reuse this as the filename inside text_to_speech
+        )
+
+    print(f"[INFO] All words synthesized in: {output_dir}", flush=True)
+"""
 if __name__ == "__main__":
     import sys
     print("Starting TTS script...", flush=True)
@@ -270,22 +302,4 @@ if __name__ == "__main__":
         )
 
     print(f"[INFO] WAV file generated at: {output_file}", flush=True)
-
-"""
-if __name__ == "__main__":
-    import sys
-    print("Starting TTS script...", flush=True)
-
-    try:
-        text_input = "Xin chào bạn Khang Bùi của công ty ma vì cô"
-        output_file_name = "output"
-        output_path = text_to_speech(
-            text=text_input,
-            speed="slow",
-            model_name="pretrained_vi.onnx",
-            hash_of_text=output_file_name
-        )
-        print(f"[INFO] WAV file generated at: {output_path}", flush=True)
-    except Exception as e:
-        print("Error occurred:", e, flush=True)
 """
